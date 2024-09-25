@@ -1,0 +1,71 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Butterfly Chart showing Domestic vs International Flights for each Airport.",
+    "data": {
+      "url": "path_to_your_csv_file.csv",
+      "format": {
+        "type": "csv"
+      }
+    },
+    "transform": [
+      {
+        "filter": "datum.Year == 2009 && datum.Month == 1"
+      }
+    ],
+    "vconcat": [
+      {
+        "title": "Domestic Flights",
+        "mark": "bar",
+        "encoding": {
+          "x": {
+            "field": "Domestic Total",
+            "type": "quantitative",
+            "axis": {
+              "title": "Number of Domestic Passengers"
+            }
+          },
+          "y": {
+            "field": "Airport",
+            "type": "nominal",
+            "sort": "-x",
+            "axis": {
+              "title": "Airport"
+            }
+          },
+          "color": {
+            "value": "blue"
+          }
+        }
+      },
+      {
+        "title": "International Flights",
+        "mark": "bar",
+        "encoding": {
+          "x": {
+            "field": "International Total",
+            "type": "quantitative",
+            "axis": {
+              "title": "Number of International Passengers"
+            }
+          },
+          "y": {
+            "field": "Airport",
+            "type": "nominal",
+            "sort": "-x",
+            "axis": {
+              "title": ""
+            }
+          },
+          "color": {
+            "value": "red"
+          }
+        }
+      }
+    ],
+    "config": {
+      "axisY": {
+        "minExtent": 30
+      }
+    }
+  }
+  
