@@ -1,70 +1,179 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "description": "Butterfly Chart showing Domestic vs International Flights for each Airport.",
+    "description": "Butterfly chart comparing Domestic and Regional, and International Passengers per Airport with Year filter.",
     "data": {
-      "url": "path_to_your_csv_file.csv",
+      "url": "https://raw.githubusercontent.com/yiqianee/FIT3179_hw_week10/refs/heads/main/data/passenger_data.csv",
       "format": {
         "type": "csv"
       }
     },
+    "params": [
+      {
+        "name": "yearSelector",
+        "value": 2018,
+        "bind": {
+          "input": "select",
+          "options": [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+          "labels": ["2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"],
+          "name": "Year: "
+        }
+      }
+    ],
     "transform": [
       {
-        "filter": "datum.Year == 2009 && datum.Month == 1"
-      }
-    ],
-    "vconcat": [
-      {
-        "title": "Domestic Flights",
-        "mark": "bar",
-        "encoding": {
-          "x": {
-            "field": "Domestic Total",
-            "type": "quantitative",
-            "axis": {
-              "title": "Number of Domestic Passengers"
-            }
-          },
-          "y": {
-            "field": "Airport",
-            "type": "nominal",
-            "sort": "-x",
-            "axis": {
-              "title": "Airport"
-            }
-          },
-          "color": {
-            "value": "blue"
-          }
-        }
+        "filter": "datum.Year == yearSelector"
       },
       {
-        "title": "International Flights",
-        "mark": "bar",
-        "encoding": {
-          "x": {
-            "field": "International Total",
-            "type": "quantitative",
-            "axis": {
-              "title": "Number of International Passengers"
-            }
+        "aggregate": [
+          {
+            "op": "sum",
+            "field": "Domestic_Total",
+            "as": "Sum_Domestic_Total"
           },
-          "y": {
-            "field": "Airport",
-            "type": "nominal",
-            "sort": "-x",
-            "axis": {
-              "title": ""
-            }
-          },
-          "color": {
-            "value": "red"
+          {
+            "op": "sum",
+            "field": "International_Total",
+            "as": "Sum_International_Total"
           }
-        }
+        ],
+        "groupby": ["Airport", "Year"]
+      },
+      {
+        "calculate": "-datum['Sum_Domestic_Total']",
+        "as": "Negative_Domestic_Total"
       }
     ],
+    "hconcat": [
+      {
+        "layer": [
+          {
+            "mark": "bar",
+            "encoding": {
+              "x": {
+                "field": "Negative_Domestic_Total",
+                "type": "quantitative",
+                "axis": {
+                  "title": "Number of Domestic and Regional Passengers", 
+                  "orient": "top",
+                  "labelExpr": "abs(datum.value)" 
+                },
+                "scale": {
+                  "domain": [-35000000, 0]
+                }
+              },
+              "y": {
+                "field": "Airport",
+                "type": "nominal",
+                "axis": {
+                  "title": "Airport"
+                }
+              },
+              "color": {
+                "value": "lightblue"
+              },
+              "tooltip": [
+                { "field": "Sum_Domestic_Total", "type": "quantitative", "title": "Domestic and Regional Passengers" },  
+                { "field": "Airport", "type": "nominal", "title": "Airport" },
+                { "field": "Year", "type": "ordinal", "title": "Year" }
+              ]
+            },
+            "width": 280
+          },
+          {
+            "mark": {
+              "type": "text",
+              "align": "right",
+              "dx": -5,
+              "dy": 4
+            },
+            "encoding": {
+              "x": {
+                "field": "Negative_Domestic_Total",
+                "type": "quantitative"
+              },
+              "y": {
+                "field": "Airport",
+                "type": "nominal"
+              },
+              "text": {
+                "field": "Sum_Domestic_Total",
+                "type": "quantitative",
+                "format": ".2s"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "layer": [
+          {
+            "mark": "bar",
+            "encoding": {
+              "x": {
+                "field": "Sum_International_Total",
+                "type": "quantitative",
+                "axis": {
+                  "title": "Number of International Passengers",
+                  "orient": "top"
+                },
+                "scale": {
+                  "domain": [0, 20000000]
+                }
+              },
+              "y": {
+                "field": "Airport",
+                "type": "nominal",
+                "axis": null
+              },
+              "color": {
+                "value": "darkblue"
+              },
+              "tooltip": [
+                { "field": "Sum_International_Total", "type": "quantitative", "title": "International Passengers" },
+                { "field": "Airport", "type": "nominal", "title": "Airport" },
+                { "field": "Year", "type": "ordinal", "title": "Year" }
+              ]
+            },
+            "width": 280
+          },
+          {
+            "mark": {
+              "type": "text",
+              "align": "left",
+              "dx": 5,
+              "dy": 4
+            },
+            "encoding": {
+              "x": {
+                "field": "Sum_International_Total",
+                "type": "quantitative"
+              },
+              "y": {
+                "field": "Airport",
+                "type": "nominal"
+              },
+              "text": {
+                "field": "Sum_International_Total",
+                "type": "quantitative",
+                "format": ".2s"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "resolve": {
+      "scale": {
+        "y": "shared"
+      }
+    },
     "config": {
-      "axisY": {
-        "minExtent": 30
+      "view": {
+        "stroke": "transparent",
+        "padding": { "left": 0, "right": 0 }
+      },
+      "concat": {
+        "spacing": -10
       }
     }
   }
